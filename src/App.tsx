@@ -1,8 +1,7 @@
 import { createSignal, For, Show } from "solid-js"
-
-import "./App.css"
 import { Conversation, type Status, type Mode } from "@11labs/client"
 import { Bars, Puff, TailSpin } from "solid-spinner"
+import "./App.css"
 
 function App() {
 	const [conversation, setConversation] = createSignal<Conversation>()
@@ -28,29 +27,34 @@ function App() {
 						<button
 							onClick={async () => {
 								setMessages([])
-								setConversation(
-									await Conversation.startSession({
-										agentId: "QSqX8p3ZVHVGFGcahwrS",
-										onDisconnect: () => {
-											console.log("Disconnected")
-											setConversation(undefined)
-											setStatus("disconnected")
-											setMode("listening")
-										},
-										onStatusChange(prop) {
-											setStatus(prop.status)
-										},
-										onModeChange(prop) {
-											setMode(prop.mode)
-										},
-										onMessage(props) {
-											setMessages((messages) => [...messages, props])
-										},
-										onError(message) {
-											console.error(message)
-										},
-									})
-								)
+								try {
+									await navigator.mediaDevices.getUserMedia({ audio: true })
+									setConversation(
+										await Conversation.startSession({
+											agentId: "QSqX8p3ZVHVGFGcahwrS",
+											onDisconnect: () => {
+												console.log("Disconnected")
+												setConversation(undefined)
+												setStatus("disconnected")
+												setMode("listening")
+											},
+											onStatusChange(prop) {
+												setStatus(prop.status)
+											},
+											onModeChange(prop) {
+												setMode(prop.mode)
+											},
+											onMessage(props) {
+												setMessages((messages) => [...messages, props])
+											},
+											onError(message) {
+												console.error(message)
+											},
+										})
+									)
+								} catch (e) {
+									console.error(e)
+								}
 							}}>
 							New Voice Chat
 						</button>
